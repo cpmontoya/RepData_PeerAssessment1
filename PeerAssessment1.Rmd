@@ -59,11 +59,57 @@ plot(stepsperinterval$interval,stepsperinterval$steps,type="l")
 ### Compute Interval of max average steps
 
 ```{r maxinterval}
-stepsperinterval$interval[which.max(stepsperinterval$steps)]
+paste("The interval with the max steps is ",stepsperinterval$interval[which.max(stepsperinterval$steps)])
 ```
 
 ## Imputing missing values
 
+###Get Total number of NA values in steps
+```{r getNA}
+paste("The Total number if NA Values is " ,sum(is.na(actdata$steps)))
+```
+
+### Strategy for imputing missing values
+
+How are NA values distributed?
+```{r NADistribution}
+nabydates<-tapply(is.na(actdata$steps),actdata$date,sum)
+nabydates
+```
+
+Since all NA are confined to single dates and all values are missing from each of those dates it might make sense to use the mean from each interval over all the other dates
+The mean should be taken though over just the dates without NA values
+
+```{r NewMeans}
+stepsperinterval2 <- aggregate(steps~interval,actdata,sum)
+stepsperinterval2$steps<-stepsperinterval2$steps/length(nabydates[nabydates==0])
+tail(stepsperinterval2)
+```
+
+
+```{r Impute}
+nactdata<-actdata
+sum(is.na(nactdata$steps))
+nabydates<-tapply(is.na(actdata$steps),actdata$date,sum)
+for(i in names(nabydates[nabydates!=0]))
+     nactdata[nactdata$date==i,"steps"]<-stepsperinterval2$steps
+head(nactdata)
+tail(nactdata)
+```
+
+### recompute means with new data frame
+```{r newmeans}
+stepsperinterval <- aggregate(steps~interval,nactdata,sum)
+stepsperinterval$steps<-stepsperinterval$steps/length(unique(nactdata$date))
+tail(stepsperinterval)
+```
+
+The new means are different from the original computations but are consistent with the means of the old data adjusting the divisor for only the days with data
+The total steps per day is not impacted since NA values were ignored for those totals
+```{r nstepsperday}
+nstepsperday <- tapply(actdata$steps,nactdata$date,sum,na.rm=TRUE)
+hist(nstepsperday)
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
