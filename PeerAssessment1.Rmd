@@ -1,14 +1,45 @@
 # Reproducible Research: Peer Assessment 1
 
+### After forking GitHub Repository needed to unzip file
+
+Used the command "unzip("activity.zip")"
 
 ## Loading and preprocessing the data
 
+### Load and display head and tail of data
+```{r getdata}
+actdata <- read.csv("activity.csv")
+head(actdata)
+tail(actdata)
+```
 
+### Check data types
+```{r checkdata}
+str(actdata)
+```
+
+### Change date data from factor to date type
+```{r changedata}
+actdata$date <- as.Date(actdata$date)
+actdata$datetime <- paste(actdata[,2],as.integer(actdata[,3]/100),actdata[,3]-100*as.integer(actdata[,3]/100))
+actdata$datetime <- strptime(actdata$datetime,"%Y-%m-%d %H %M")
+str(actdata)
+```
 
 ## What is mean total number of steps taken per day?
 
+### Compute the Total number of steps taken each day
 
+```{r stepsperday}
+stepsperday <- tapply(actdata$steps,actdata$date,sum,na.rm=TRUE)
+hist(stepsperday)
+```
 
+###The mean and median are:
+```{r meanmedian}
+paste("The mean is ",mean(stepsperday), " steps per day")  
+paste("The median is ",median(stepsperday),"steps per day")  
+```
 ## What is the average daily activity pattern?
 
 
