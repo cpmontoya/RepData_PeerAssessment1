@@ -278,7 +278,7 @@ tail(stepsperinterval)
 
 
 The new means are different from the original computations but are consistent with the means of the old data adjusting the divisor for only the days with data
-The total steps per day will now increase
+The total steps per day is not impacted since NA values were ignored for those totals
 
 ```r
 nstepsperday <- tapply(actdata$steps, nactdata$date, sum, na.rm = TRUE)
@@ -289,6 +289,26 @@ hist(nstepsperday)
 
 
 
-
-
 ## Are there differences in activity patterns between weekdays and weekends?
+
+Add weekday
+
+```r
+day <- weekdays(as.Date(nactdata$date))
+day[!(day %in% c("Saturday", "Sunday"))] <- "weekday"
+day[day %in% c("Saturday", "Sunday")] <- "weekend"
+nactdata$weekday <- as.factor(day)
+splitdata <- split(nactdata, nactdata$weekday)
+stepsperinterval <- aggregate(steps ~ interval, splitdata[["weekend"]], sum)
+stepsperinterval$steps <- stepsperinterval$steps/length(unique(splitdata[["weekend"]]$date))
+par(mfcol = c(2, 1))
+plot(stepsperinterval$interval, stepsperinterval$steps, type = "l", main = "weekend")
+stepsperinterval <- aggregate(steps ~ interval, splitdata[["weekday"]], sum)
+stepsperinterval$steps <- stepsperinterval$steps/length(unique(splitdata[["weekday"]]$date))
+plot(stepsperinterval$interval, stepsperinterval$steps, type = "l", main = "weekday")
+```
+
+![plot of chunk weekday](figure/weekday.png) 
+
+
+
