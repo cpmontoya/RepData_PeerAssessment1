@@ -104,6 +104,46 @@ paste("The median is ", median(stepsperday), "steps per day")
 
 ## What is the average daily activity pattern?
 
+### Compute Total steps for each 5 min interval across days then average
+
+
+```r
+stepsperinterval <- aggregate(steps ~ interval, actdata, sum)
+stepsperinterval$steps <- stepsperinterval$steps/length(unique(actdata$date))
+tail(stepsperinterval)
+```
+
+```
+##     interval  steps
+## 283     2330 2.2623
+## 284     2335 4.0820
+## 285     2340 2.8689
+## 286     2345 0.5574
+## 287     2350 0.1967
+## 288     2355 0.9344
+```
+
+
+### Plot average over days of steps per interval
+
+
+```r
+plot(stepsperinterval$interval, stepsperinterval$steps, type = "l")
+```
+
+![plot of chunk plotintervals](figure/plotintervals.png) 
+
+
+### Compute Interval of max average steps
+
+
+```r
+stepsperinterval$interval[which.max(stepsperinterval$steps)]
+```
+
+```
+## [1] 835
+```
 
 
 ## Imputing missing values
